@@ -57,7 +57,7 @@ async def main():
                                                           max_concurrent=10)
         # Classification
         classification_class = LLMClassifier()
-        df = await classification_class.classify(df=df_combined, batch_size=15, max_concurrent=5)
+        df = await classification_class.classify(df=df_combined, batch_size=12, max_concurrent=5)
 
         df_merged = pd.merge(df_combined, df, on=["id", "platform"], how="left")
 

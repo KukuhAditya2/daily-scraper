@@ -1,4 +1,4 @@
-import os, ssl
+import os
 from typing import List, Dict, Any, Optional
 import asyncpg
 from dotenv import load_dotenv
@@ -9,20 +9,12 @@ from src.types import ScrapeStats
 load_dotenv()
 logger = get_logger(__name__)
 
-ssl = ssl.create_default_context()
 
 # Database configuration
-DB_CONFIG: Dict[str, str] = {
-    "user": os.getenv("DB_USER", ""),
-    "password": os.getenv("DB_PASSWORD", ""),
-    "database": os.getenv("DB_NAME", ""),
-    "host": os.getenv("DB_HOST", ""),
-    "port": os.getenv("DB_PORT", "5432"),
-    "ssl": ssl
-}
+DATABASE_URL: str = os.getenv("DATABASE_URL", "")
 
-if not all(DB_CONFIG.values()):
-    raise ValueError("All DB_* environment variables must be set in .env")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable must be set.")
 
 async def test_connection() -> None:
     """
@@ -31,7 +23,7 @@ async def test_connection() -> None:
     """
     conn: Optional[asyncpg.Connection] = None
     try:
-        conn = await asyncpg.connect(**DB_CONFIG)
+        conn = await asyncpg.connect(DATABASE_URL)
         version = await conn.fetchval("SELECT version();")
         logger.info(f"✅ Database connection successful! Version: {version}")
         print(f"✅ Database connection successful! Version: {version}")
@@ -67,7 +59,7 @@ async def insert_log_runs_batch(logs: List[ScrapeStats]) -> None:
 
     conn: Optional[asyncpg.Connection] = None
     try:
-        conn = await asyncpg.connect(**DB_CONFIG)
+        conn = await asyncpg.connect(DATABASE_URL)
         records = [
             (
                 log.get("channel_id"),
@@ -110,7 +102,7 @@ async def get_all_sources() -> List[Dict[str, Any]]:
     """
     conn: Optional[asyncpg.Connection] = None
     try:
-        conn = await asyncpg.connect(**DB_CONFIG)
+        conn = await asyncpg.connect(DATABASE_URL)
         rows = await conn.fetch("SELECT id, channel_id, platform, channel_name FROM sources")
         return [dict(row) for row in rows]
     except Exception as e:

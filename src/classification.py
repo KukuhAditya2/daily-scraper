@@ -116,16 +116,15 @@ EXAMPLE JSON OUTPUT:
 
         Expected columns in df: "id", "platform", "text" (required), "links" (optional).
         """
-        # Validasi kolom wajib
+        # Validation colum required
         required_cols = {"id", "platform", "text"}
         missing_cols = required_cols - set(df.columns)
         if missing_cols:
             raise ValueError(f"Missing required columns: {missing_cols}")
 
-        # Buat salinan dan isi kolom opsional
+        # Make a copy and fill optional columns
         df_clean = df.copy()
 
-        # Pastikan 'links' ada dan berupa list
         if "links" not in df_clean.columns:
             df_clean["links"] = [[] for _ in range(len(df_clean))]
         else:
@@ -133,17 +132,14 @@ EXAMPLE JSON OUTPUT:
                 lambda x: x if isinstance(x, list) else []
             )
 
-        # Hapus baris dengan text null/NaN dan pastikan text string
         df_clean = df_clean.dropna(subset=["text"]).copy()
         df_clean["text"] = df_clean["text"].astype(str)
 
-        # Jika tidak ada data valid
         if df_clean.empty:
             self.logger.info("No valid messages to classify.")
             await send_error_to_telegram("❌ No valid messages to classify.")
             return pd.DataFrame(columns=["id", "platform", "keep", "score", "tags"])
 
-        # Konversi ke list of dict untuk pengiriman ke LLM
         input_data = df_clean[["id", "text", "platform", "links"]].to_dict(orient="records")
 
         # Batch processing
@@ -160,7 +156,10 @@ EXAMPLE JSON OUTPUT:
         tasks = [_process_batch(batch) for batch in batches]
         await asyncio.gather(*tasks)
 
-        # Kembalikan sebagai DataFrame
         result_df = pd.DataFrame(results)
+        result_df = result_df[result_df["keep"] == "true"]
+
+        if "keep" in result_df.columns:
+            result_df = result_df.drop(columns=["keep"])
         self.logger.info(f"✅ Classification completed. Total: {len(result_df)} items.")
         return result_df

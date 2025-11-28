@@ -125,7 +125,7 @@ class TelegramScraper:
                     "text": clean_text,
                     "timestamp": message.date,
                     "author": author,
-                    # "source": "telegram",
+                    "channel_id": group_id,
                     "platform": "telegram",
                     "links": normalized_urls
                 })

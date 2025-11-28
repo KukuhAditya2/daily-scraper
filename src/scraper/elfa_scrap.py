@@ -120,6 +120,7 @@ class ElfaScraper:
                                 "timestamp": timestamp,
                                 "author": f"elfa_{tweet_id}",
                                 "platform": "elfa",
+                                "channel_id": path_url,
                                 "links": [
                                     link.strip() for link in item.get("sourceLinks", [])
                                     if isinstance(link, str) and link.strip()
@@ -158,6 +159,7 @@ class ElfaScraper:
                                 "timestamp": timestamp,
                                 "author": f"elfa_{tweet_id}",
                                 "platform": "elfa",
+                                "channel_id": path_url,
                                 "links": [
                                     link.strip() for link in item.get("source_links", [])
                                     if isinstance(link, str) and link.strip()

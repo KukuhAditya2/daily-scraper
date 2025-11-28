@@ -66,13 +66,7 @@ async def main():
 
         df_merged = pd.merge(df_combined, df, on=["id", "platform"], how="left")
 
-        # Save final result
-        df_filtered = df_merged[df_merged["keep"] != False]
-
-        if "keep" in df_filtered.columns:
-            df_filtered = df_filtered.drop(columns=["keep"])
-
-        records = df_filtered.to_dict(orient="records")
+        records = df_merged.to_dict(orient="records")
         # records = df_combined.to_dict(orient="records")
         json_output = json.dumps(
             records,

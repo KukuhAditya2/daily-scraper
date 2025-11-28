@@ -140,7 +140,7 @@ class DiscordScraper:
                 "text": text_clean,
                 "timestamp": msg["timestamp"],
                 "author": f"{msg['author']['username']}#{msg['author']['id']}",
-                # "source": ,
+                "channel_id": channel_id,
                 "platform": "discord",
                 "links": links
             })
